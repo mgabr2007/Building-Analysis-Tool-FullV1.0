@@ -72,7 +72,10 @@ if uploaded_file is not None:
         temp_file_path = temp_file.name
 
     file = ifcopenshell.open(temp_file_path)
-    class_type = st.selectbox('Select Class Type', ['IfcBuildingElement', 'IfcBeam', 'IfcWall', 'IfcWindow'])
+    
+    # Get all unique classes in the IFC file
+    all_classes = set(entity.is_a() for entity in file)
+    class_type = st.selectbox('Select Class Type', sorted(all_classes))
 
     data, pset_attributes = get_objects_data_by_class(file, class_type)
     attributes = ["ExpressId", "GlobalId", "Class", "PredefinedType", "Name", "Level", "Type"] + pset_attributes

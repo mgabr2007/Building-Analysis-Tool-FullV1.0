@@ -18,23 +18,19 @@ def get_objects_data_by_class(file, class_type):
     objects_data = []
     objects = file.by_type(class_type)
       
-    for object in objects:
-        psets = Element.get_psets(object, psets_only=True)
+    for obj in objects:
+        psets = Element.get_psets(obj, psets_only=True)
         add_pset_attributes(psets)
-        qtos = Element.get_psets(object, qtos_only=True)
+        qtos = Element.get_psets(obj, qtos_only=True)
         add_pset_attributes(qtos)
         objects_data.append({
-            "ExpressId": object.id(),
-            "GlobalId": object.GlobalId,
-            "Class": object.is_a(),
-            "PredefinedType": Element.get_predefined_type(object),
-            "Name": object.Name,
-            "Level": Element.get_container(object).Name
-            if Element.get_container(object)
-            else "",
-            "Type": Element.get_type(object).Name
-            if Element.get_type(object)
-            else "",
+            "ExpressId": obj.id(),
+            "GlobalId": getattr(obj, 'GlobalId', None),
+            "Class": obj.is_a(),
+            "PredefinedType": Element.get_predefined_type(obj),
+            "Name": getattr(obj, 'Name', None),
+            "Level": Element.get_container(obj).Name if Element.get_container(obj) else "",
+            "Type": Element.get_type(obj).Name if Element.get_type(obj) else "",
             "QuantitySets": qtos,
             "PropertySets": psets,
         })
@@ -43,22 +39,15 @@ def get_objects_data_by_class(file, class_type):
 # Function to get attribute value
 def get_attribute_value(object_data, attribute):
     if "." not in attribute:
-        return object_data[attribute]
+        return object_data.get(attribute, None)
     elif "." in attribute:
-        pset_name = attribute.split(".",1)[0]
-        prop_name = attribute.split(".",-1)[1]
-        if pset_name in object_data["PropertySets"].keys():
-            if prop_name in object_data["PropertySets"][pset_name].keys():
-                return object_data["PropertySets"][pset_name][prop_name]
-            else:
-                return None
-        if pset_name in object_data["QuantitySets"].keys():
-            if prop_name in object_data["QuantitySets"][pset_name].keys():
-                return object_data["QuantitySets"][pset_name][prop_name]
-            else:
-                return None
-    else:
-        return None
+        pset_name = attribute.split(".", 1)[0]
+        prop_name = attribute.split(".", -1)[1]
+        if pset_name in object_data["PropertySets"]:
+            return object_data["PropertySets"][pset_name].get(prop_name, None)
+        if pset_name in object_data["QuantitySets"]:
+            return object_data["QuantitySets"][pset_name].get(prop_name, None)
+    return None
 
 # Streamlit UI
 st.title('IFC File Processor')
@@ -91,14 +80,6 @@ if uploaded_file is not None:
     dataframe = pd.DataFrame.from_records(pandas_data, columns=attributes)
     st.write(dataframe)
 
-    if class_type == 'IfcBeam':
-        beams = dataframe[(dataframe["Class"] == "IfcBeam")]
-        if "Qto_BeamBaseQuantities.NetVolume" in beams.columns:
-            values = beams.groupby(["Level", "Type", "PredefinedType"])["Qto_BeamBaseQuantities.NetVolume"].sum()
-            st.write(values)
-        else:
-            st.write("Column 'Qto_BeamBaseQuantities.NetVolume' not found in the data.")
-    
     # Group by floor and type, and count the total number for each type per floor
     if 'Level' in dataframe.columns and 'Type' in dataframe.columns:
         floor_type_counts = dataframe.groupby(['Level', 'Type']).size().reset_index(name='Count')

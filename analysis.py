@@ -141,6 +141,21 @@ def export_analysis_to_pdf(ifc_metadata, component_count, figs, author, subject,
 
     doc.build(flowables)
     return buffer.name
+def compare_ifc_files(ifc_file1, ifc_file2):
+    components1 = count_building_components(ifc_file1)
+    components2 = count_building_components(ifc_file2)
+
+    comparison_result = defaultdict(dict)
+    all_component_types = set(components1.keys()) | set(components2.keys())
+
+    for component_type in all_component_types:
+        count1 = components1.get(component_type, 0)
+        count2 = components2.get(component_type, 0)
+        comparison_result[component_type]['File 1 Count'] = count1
+        comparison_result[component_type]['File 2 Count'] = count2
+        comparison_result[component_type]['Difference'] = count1 - count2
+
+    return comparison_result
 
 def get_objects_data_by_class(file, class_type):
     def add_pset_attributes(psets):

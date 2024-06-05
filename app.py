@@ -1,9 +1,9 @@
-
 import streamlit as st
 import ifcopenshell
 import ifcopenshell.util.element as Element
 import pandas as pd
 import pprint
+import tempfile
 
 pp = pprint.PrettyPrinter()
 
@@ -66,7 +66,12 @@ st.title('IFC File Processor')
 uploaded_file = st.file_uploader("Choose an IFC file", type="ifc")
 
 if uploaded_file is not None:
-    file = ifcopenshell.open(uploaded_file)
+    # Save the uploaded file to a temporary location
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(uploaded_file.read())
+        temp_file_path = temp_file.name
+
+    file = ifcopenshell.open(temp_file_path)
     class_type = st.selectbox('Select Class Type', ['IfcBuildingElement', 'IfcBeam', 'IfcWall', 'IfcWindow'])
 
     data, pset_attributes = get_objects_data_by_class(file, class_type)

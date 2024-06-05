@@ -90,8 +90,11 @@ if uploaded_file is not None:
 
     if class_type == 'IfcBeam':
         beams = dataframe[(dataframe["Class"] == "IfcBeam")]
-        values = beams.groupby(["Level", "Type", "PredefinedType"])["Qto_BeamBaseQuantities.NetVolume"].sum()
-        st.write(values)
+        if "Qto_BeamBaseQuantities.NetVolume" in beams.columns:
+            values = beams.groupby(["Level", "Type", "PredefinedType"])["Qto_BeamBaseQuantities.NetVolume"].sum()
+            st.write(values)
+        else:
+            st.write("Column 'Qto_BeamBaseQuantities.NetVolume' not found in the data.")
 
     st.download_button(
         label="Download data as CSV",

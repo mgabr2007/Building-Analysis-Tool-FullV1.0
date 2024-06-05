@@ -180,3 +180,18 @@ def get_attribute_value(object_data, attribute):
         if pset_name in object_data["QuantitySets"]:
             return object_data["QuantitySets"][pset_name].get(prop_name, None)
     return None
+
+def visualize_data(df, columns):
+    figs = []
+    for column in columns:
+        if pd.api.types.is_numeric_dtype(df[column]):
+            fig = px.histogram(df, x=column)
+            fig.update_layout(paper_bgcolor='white', plot_bgcolor='white', font_color='black')
+            st.plotly_chart(fig)
+            figs.append(fig)
+        else:
+            fig = px.bar(df, x=column, title=f"Bar chart of {column}")
+            fig.update_layout(paper_bgcolor='white', plot_bgcolor='white', font_color='black')
+            st.plotly_chart(fig)
+            figs.append(fig)
+    return figs

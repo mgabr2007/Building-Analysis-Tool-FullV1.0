@@ -75,6 +75,12 @@ def ifc_file_analysis():
                     with open(pdf_file_path, 'rb') as f:
                         st.download_button('Download PDF Report', f, file_name.replace('.ifc', '.pdf'))
             os.remove(file_path)
+def detailed_analysis_ui(ifc_file):
+    with st.expander("Show Detailed Component Analysis"):
+        product_types = sorted({entity.is_a() for entity in ifc_file.by_type('IfcProduct')})
+        selected_product_type = st.selectbox("Select a product type for detailed analysis", product_types, key="product_type")
+        sort_by = st.select_slider("Sort by", ["Type", "Count"], value='Count', key="sort")
+        detailed_analysis(ifc_file, selected_product_type, sort_by)
 
 def excel_file_analysis():
     st.write("""

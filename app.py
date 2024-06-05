@@ -53,6 +53,39 @@ def get_attribute_value(object_data, attribute):
 # Streamlit UI setup
 st.title('IFC File Processor')
 
+# Instructions for the user
+st.markdown("""
+## Instructions for Using the IFC File Processor
+
+1. **Upload an IFC File**:
+   - Use the "Choose an IFC file" button to upload your IFC file. This file should be in the `.ifc` format.
+
+2. **Select Class Type**:
+   - After uploading the IFC file, select the class type of objects you want to analyze from the dropdown menu. The dropdown will be populated with all unique class types present in the uploaded IFC file.
+
+3. **View Object Data**:
+   - The app will display a table containing detailed information about the objects of the selected class type. This table includes attributes like `ExpressId`, `GlobalId`, `Class`, `PredefinedType`, `Name`, `Level`, and `Type`, along with any property sets and quantity sets associated with the objects.
+
+   **Explanation**:
+   - **ExpressId**: The internal identifier of the object in the IFC file.
+   - **GlobalId**: The globally unique identifier of the object.
+   - **Class**: The type of the object (e.g., IfcBeam, IfcWall).
+   - **PredefinedType**: A subtype or specific classification of the object.
+   - **Name**: The name of the object.
+   - **Level**: The floor or level where the object is located.
+   - **Type**: The specific type of the object.
+   - **PropertySets** and **QuantitySets**: These columns contain various properties and quantities associated with the objects, respectively.
+
+4. **View Floor and Type Summary**:
+   - Below the detailed table, you will see another table that shows the total count of each type of object per floor. This table is grouped by `Level` and `Type`.
+
+   **Explanation**:
+   - This summary helps you understand how many objects of each type are present on each floor. For example, it will show you how many beams, walls, or windows are on each level of the building.
+
+5. **Download Data**:
+   - You can download the detailed object data as a CSV file by clicking the "Download data as CSV" button. This allows you to further analyze the data offline or integrate it with other tools.
+""")
+
 # File uploader widget
 uploaded_file = st.file_uploader("Choose an IFC file", type="ifc")
 
@@ -82,9 +115,13 @@ if uploaded_file is not None:
         pandas_data.append(tuple(row))
 
     dataframe = pd.DataFrame.from_records(pandas_data, columns=attributes)
+
+    # Display detailed object data
+    st.subheader("Detailed Object Data")
     st.write(dataframe)
 
     # Group by floor and type, and count the total number for each type per floor
+    st.subheader("Summary by Floor and Type")
     if 'Level' in dataframe.columns and 'Type' in dataframe.columns:
         floor_type_counts = dataframe.groupby(['Level', 'Type']).size().reset_index(name='Count')
         st.write(floor_type_counts)  # Display the grouped data

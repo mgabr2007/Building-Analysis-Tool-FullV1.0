@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import os
 from utils import handle_file_upload, process_ifc_file, read_excel
-from analysis import display_metadata, count_building_components, detailed_analysis, visualize_component_count, generate_insights, export_analysis_to_pdf, get_objects_data_by_class, get_attribute_value, visualize_data
+from analysis import display_metadata, count_building_components, detailed_analysis, visualize_component_count, generate_insights, export_analysis_to_pdf, get_objects_data_by_class, get_attribute_value, visualize_data, compare_ifc_files
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -95,6 +95,13 @@ if uploaded_file is not None:
             st.write(values)
         else:
             st.write("Column 'Qto_BeamBaseQuantities.NetVolume' not found in the data.")
+    
+    # Group by floor and type, and count the total number for each type per floor
+    if 'Level' in dataframe.columns and 'Type' in dataframe.columns:
+        floor_type_counts = dataframe.groupby(['Level', 'Type']).size().reset_index(name='Count')
+        st.write(floor_type_counts)
+    else:
+        st.write("Columns 'Level' and 'Type' not found in the data.")
 
     st.download_button(
         label="Download data as CSV",

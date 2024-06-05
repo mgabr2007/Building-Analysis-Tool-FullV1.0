@@ -140,3 +140,42 @@ def export_analysis_to_pdf(ifc_metadata, component_count, figs, author, subject,
 
     doc.build(flowables)
     return buffer.name
+
+def get_objects_data_by_class(file, class_type):
+    def add_pset_attributes(psets):
+        for pset_name, pset_data in psets.items():
+            for property_name in pset_data.keys():
+                pset_attributes.add(f'{pset_name}.{property_name}')
+    
+    pset_attributes = set()
+    objects_data = []
+    objects = file.by_type(class_type)
+      
+    for obj in objects:
+        psets = Element.get_psets(obj, psets_only=True)
+        add_pset_attributes(psets)
+        qtos = Element.get_psets(obj, qtos_only=True)
+        add_pset_attributes(qtos)
+        objects_data.append({
+            "ExpressId": obj.id(),
+            "GlobalId": getattr(obj, 'GlobalId', None),
+            "Class": obj.is_a(),
+            "PredefinedType": Element.get_predefined_type(obj),
+            "Name": getattr(obj, 'Name', None),
+            "Level": Element.get_container(obj).Name if Element.get_container(obj) else "",
+            "Type": Element.get_type(obj).Name if Element.get_type(obj) else "",
+            "QuantitySets": qtos,
+            "PropertySets": psets,
+        })
+    return objects_data, list(pset_attributes)
+
+def get_attribute_value(object_data, attribute):
+    if "." not in attribute:
+        return object_data.get(attribute, None)
+    elif "." in attribute:
+        pset_name, prop_name = attribute.split(".", 1)
+        if pset_name in object_data["PropertySets"]:
+            return object_data["PropertySets"][pset_name].get(prop_name, None)
+        if pset_name in object_data["QuantitySets"]:
+            return object_data["QuantitySets"][pset_name].get(prop_name, None)
+    return None

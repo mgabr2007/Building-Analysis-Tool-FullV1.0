@@ -1,5 +1,9 @@
-
 streamlit
-ifcopenshell
 pandas
-xlsxwriter
+numpy
+ifcopenshell
+matplotlib
+plotly
+reportlab
+psutil
+openpyxl
